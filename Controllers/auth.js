@@ -31,7 +31,7 @@ module.exports.Register = async (req, res) => {
         }
         const UserCreated = await User.create({email, password})
         const token = create_token(UserCreated.email)
-        res.status(201).json({message: 'User Created Successfully.', token: token, Age: maxAge, status: 201 })
+        res.status(201).json({message: 'User Created Successfully.', token: token, Age: maxAge, status: 201, email: email })
     }catch(err){
         res.status(400).json({message: err.message})
     }
@@ -50,7 +50,7 @@ module.exports.Login = async (req, res) => {
                 return res.status(400).json({message: "Wrong password..."})
             }
             const token = create_token(user.email)
-            res.status(200).json({message: "Login Successful", token: token, Age: maxAge, status: 200})
+            res.status(200).json({message: "Login Successful", token: token, Age: maxAge, status: 200, email: user.email})
         }catch(error){
             return res.status(500).json({Error: error.message})
         }

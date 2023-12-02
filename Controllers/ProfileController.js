@@ -7,6 +7,12 @@ module.exports.CreateProfile = async(req, res) => {
     if(!validate(email)){
         return res.status(400).json({message: "Invalid email address..."})
     }
+    if(gender === showme){
+        return res.status(400).json({message: "Please select a gender different to your actual gender..."})
+    }
+    if(images.length < 2 || images.length > 10 ){
+        return res.status(400).json({message: "Please Insert minimum of 2 Images..."})
+    }
     try{
         const ProfileExists = await Profile.findOne({email})
         if(ProfileExists){
@@ -17,7 +23,7 @@ module.exports.CreateProfile = async(req, res) => {
             return res.status(400).json({ message: "Please verify your data..." })
         }
         return res.status(201).json({ message: ProfileCreated })
-    }catch(err){
+    }catch(err){ 
         res.status(500).json({Error: err.message})
     }
 }
@@ -50,7 +56,7 @@ module.exports.MyProfile = async(req, res) => {
     try{
         const MyProfile = await Profile.findOne({email})
         if(!MyProfile){
-            return res.status(400).json({message : "No profile found for the given email..."})
+            return res.status(400).json({message : `No profile found for the email ${email}...`})
         }
         return res.status(200).json({Profile: MyProfile})
     }catch(err){

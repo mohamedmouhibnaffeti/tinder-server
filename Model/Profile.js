@@ -24,7 +24,7 @@ const ProfileSchema = mongoose.Schema({
     },
     showme: {
         type: String,
-        enum: ["Man", "Female"],
+        enum: ["Male", "Female"],
         required: true
     },
     aboutme: {
@@ -44,7 +44,25 @@ const ProfileSchema = mongoose.Schema({
         type: String,
         required: true,
         unique: true
-    }
+    },
+    likedUsers: [
+        {
+            type: String,
+            ref: 'User'
+        }
+    ],
+    superLikedUsers: [
+        {
+            type: String,
+            ref: 'User'
+        }
+    ],
+    matches: [
+        {
+            type: String,
+            ref: 'User'
+        }
+    ],
 })
 
 const Profile = mongoose.models.Profile || mongoose.model('Profile', ProfileSchema)

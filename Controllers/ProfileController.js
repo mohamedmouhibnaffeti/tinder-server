@@ -64,3 +64,15 @@ module.exports.MyProfile = async(req, res) => {
     }
 }
 
+module.exports.getProfilesByGender = async(req, res) => {
+    try{
+        const { gender } = req.params
+        const ProfilesFetched = await Profile.find({ gender: gender })
+        if(!ProfilesFetched){
+            return res.status(400).json({message: `No profiles found with the gender: ${gender}` })
+        }
+        return res.status(200).json({Profiles : ProfilesFetched})
+    }catch(err){
+        return res.status(500).json({message: err.message})
+    }
+}

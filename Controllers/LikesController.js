@@ -1,4 +1,5 @@
 const Profile = require('../Model/Profile')
+const Chat = require('../Model/Chat')
 
 module.exports.LikeUser = async(req, res) => {
     try{
@@ -17,7 +18,10 @@ module.exports.LikeUser = async(req, res) => {
         if(likedUser.likedUsers.includes(currentEmail)){
             const MatchedProfile = await Profile.findOneAndUpdate({ email: currentEmail }, { $addToSet: {matches: targetEmail}}, {new: true})
             const MatchedProfile1 = await Profile.findOneAndUpdate({ email: targetEmail }, { $addToSet: {matches: currentEmail}}, {new: true})
-            if(MatchedProfile && MatchedProfile1){
+            const NewChat = await Chat.create({ 
+                members: [targetEmail, currentEmail]
+            })
+            if(MatchedProfile && MatchedProfile1 && NewChat){
                 return res.status(202).json({message: `Matched with user of email ${targetEmail}...`})
             }
         }
@@ -44,7 +48,10 @@ module.exports.SuperLikeUser = async(req, res) => {
         if(likedUser.superLikedUsers.includes(currentEmail)){
             const MatchedProfile = await Profile.findOneAndUpdate({ email: currentEmail }, { $addToSet: {matches: targetEmail}}, {new: true})
             const MatchedProfile1 = await Profile.findOneAndUpdate({ email: targetEmail }, { $addToSet: {matches: currentEmail}}, {new: true})
-            if(MatchedProfile && MatchedProfile1){
+            const NewChat = await Chat.create({ 
+                members: [targetEmail, currentEmail]
+            })
+            if(MatchedProfile && MatchedProfile1 && NewChat){
                 return res.status(202).json({message: `Matched with user of email ${targetEmail}...`})
             }
         }

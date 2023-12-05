@@ -52,7 +52,6 @@ module.exports.UpdateProfile = async(req, res) => {
 
 module.exports.MyProfile = async(req, res) => {
     const email = req.query.email
-    console.log('email :>> ', email);
     try{
         const MyProfile = await Profile.findOne({email})
         if(!MyProfile){

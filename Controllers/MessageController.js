@@ -14,9 +14,9 @@ module.exports.addMessage = async (req, res) => {
 }
 
 module.exports.getMessages = async (req, res) => {
-    const { chatId } = req.params
+    const { chatId } = req.query
     try{
-        const MessagesFound = await Message.find({ chatId })
+        const MessagesFound = await Message.find({ chatId: chatId })
         if(!MessagesFound){
             return res.status(204).json({message: "No messages found in this chat"})
         }

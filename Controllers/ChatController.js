@@ -2,7 +2,7 @@ const Chat = require('../Model/Chat')
 
 module.exports.createChat = async(req, res) => {
     try{
-        const newChat = Chat.create({ 
+        const newChat = await Chat.create({ 
             members: [req.body.senderEmail, req.body.receiverEmail]
         })
         if(!newChat){
@@ -15,9 +15,10 @@ module.exports.createChat = async(req, res) => {
 }
 
 module.exports.userChats = async(req, res) => {
+    const userEmail = await req.params.userEmail
     try{
         const chatFound = await Chat.find({
-            members: {$in: [req.params.userEmail]}
+            members: {$in: [userEmail]}
         })
         if(!chatFound){
             return res.status(202).json({message: "no chats found for the provided user..."})
@@ -28,10 +29,10 @@ module.exports.userChats = async(req, res) => {
     }
 }
 
-module.exports.createChat = async(req, res) => {
+module.exports.GetChat = async(req, res) => {
     try{
         const chatFound = await Chat.find({
-            members: { $all: [req.params.firstEmail, req.params.secondEmail] }
+            members: { $all: [req.query.firstEmail, req.query.secondEmail] }
         })
         if(!chatFound){
             return res.status(202).json({message: "no chats found for the provided users..."})

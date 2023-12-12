@@ -8,5 +8,8 @@ router.post('/superlike', LikesController.SuperLikeUser)
 router.get('/like', LikesController.GetLikes)
 router.get('/superlike', LikesController.GetSuperLikes)
 router.get('/matches', LikesController.GetMatches)
+router.get('/check', LikesController.CheckIfUserIsLiked)
+router.post('/block', LikesController.BlockUser)
+router.get('/block', LikesController.getBlockedContacts)
 
-module.exports = router
+module.exports = router 

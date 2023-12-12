@@ -2,10 +2,31 @@ const Profile = require('../Model/Profile')
 const { validate } = require('react-email-validator')
 const User = require('../Model/User')
 
+function validateAge(birthday) {
+    const currentdate = new Date();
+    const eighteenYearsAgo = new Date(currentdate.getFullYear() - 18, currentdate.getMonth(), currentdate.getDate());
+    const date = new Date(birthday);
+    return date <= eighteenYearsAgo;
+}
+
+function validateMaxAge(birthday) {
+    const currentdate = new Date();
+    const eightyYearsAgo = new Date(currentdate.getFullYear() - 80, currentdate.getMonth(), currentdate.getDate());
+    const date = new Date(birthday);
+    return date >= eightyYearsAgo;
+}
+
+
 module.exports.CreateProfile = async(req, res) => {
-    const { firstname, lastname, birthday, gender, showme, aboutme, images, email } = await req.body
+    const { firstname, lastname, birthday, gender, showme, aboutme, images, email, Location } = await req.body
     if(!validate(email)){
         return res.status(400).json({message: "Invalid email address..."})
+    }
+    if(!validateAge(birthday)){
+        return res.status(400).json({message: "Invalid Age, you must be older than 18 years..."})
+    }
+    if(!validateMaxAge(birthday)){
+        return res.status(400).json({message: "Invalid Age, you must be younger than 80 years..."})
     }
     if(gender === showme){
         return res.status(400).json({message: "Please select a gender different to your actual gender..."})
@@ -18,7 +39,7 @@ module.exports.CreateProfile = async(req, res) => {
         if(ProfileExists){
             return res.status(400).json({ message: `Profile with email ${email} already exists in database` })
         }
-        const ProfileCreated = await Profile.create({ firstname, lastname, birthday, gender, showme, aboutme, images, email })
+        const ProfileCreated = await Profile.create({ firstname, lastname, birthday, gender, showme, aboutme, images, email, Location })
         if(!ProfileCreated){
             return res.status(400).json({ message: "Please verify your data..." })
         }
@@ -29,12 +50,12 @@ module.exports.CreateProfile = async(req, res) => {
 }
 
 module.exports.UpdateProfile = async(req, res) => {
-    const { firstname, lastname, birthday, gender, showme, aboutme, images, email, oldEmail } = await req.body
+    const { firstname, lastname, birthday, gender, showme, aboutme, images, email, oldEmail, Location, phone } = await req.body
     if(!validate(email) && email){
         return res.status(400).json({message: "Invalid email address..."})
     }
     try{
-        const ProfileUpdated = await Profile.findOneAndUpdate({ email: oldEmail }, {firstname, lastname, birthday, gender, showme, aboutme, images, email}, {new: true})
+        const ProfileUpdated = await Profile.findOneAndUpdate({ email: oldEmail }, {firstname, lastname, birthday, gender, showme, aboutme, images, email, Location, phone}, {new: true})
         if(email){
             const UpdatedUser = await User.findOneAndUpdate({email: oldEmail}, {email})
             if(!UpdatedUser){
@@ -44,7 +65,7 @@ module.exports.UpdateProfile = async(req, res) => {
         if(!ProfileUpdated){
             return res.status(400).json({message: "Error updating profile"})
         }
-        res.status(202).json({ message: "User updated successfully" })
+        return res.status(202).json({ message: "User updated successfully" })
     }catch(err){
         return res.status(500).json({message: err.message})
     }
@@ -63,15 +84,28 @@ module.exports.MyProfile = async(req, res) => {
     }
 }
 
-module.exports.getProfilesByGender = async(req, res) => {
-    try{
-        const { gender } = req.params
-        const ProfilesFetched = await Profile.find({ gender: gender })
-        if(!ProfilesFetched){
-            return res.status(400).json({message: `No profiles found with the gender: ${gender}` })
+module.exports.getProfilesByGender = async (req, res) => {
+    try {
+        const { gender } = req.query;
+        const { likedUsers, superLikedUsers } = req.body;
+
+        const ProfilesFetched = await Profile.aggregate([
+            {
+                $match: {
+                    gender: gender,
+                    email: { $nin: [...likedUsers, superLikedUsers] },
+                },
+            },
+            { $sample: { size: 200 } },
+        ]);
+
+        if (!ProfilesFetched || ProfilesFetched.length === 0) {
+            return res.status(400).json({ message: `No profiles found with the gender: ${gender}` });
         }
-        return res.status(200).json({Profiles : ProfilesFetched})
-    }catch(err){
-        return res.status(500).json({message: err.message})
+
+        return res.status(200).json({ Profiles: ProfilesFetched });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
     }
-}
+};
+

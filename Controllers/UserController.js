@@ -1,6 +1,7 @@
 const Profile = require("../Model/Profile")
 const User = require("../Model/User")
 module.exports.deleteUser = async (req, res) => {
+    
     const {email} = await req.query
     try{
         const deletedUser = await User.findOneAndDelete({email})

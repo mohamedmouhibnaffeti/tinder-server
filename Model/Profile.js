@@ -63,6 +63,23 @@ const ProfileSchema = mongoose.Schema({
             ref: 'User'
         }
     ],
+    Location : {
+        Longtitude : {
+            type: Number
+        },
+        Latitude: {
+            type: Number
+        }
+    },
+    phone: {
+        type: String
+    },
+    blockedUsers: [
+        {
+            type: String,
+            ref: 'User'
+        }
+    ],
 })
 
 const Profile = mongoose.models.Profile || mongoose.model('Profile', ProfileSchema)
